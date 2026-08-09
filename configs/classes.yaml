@@ -1,0 +1,40 @@
+classification_task:
+  name: aami_4_class
+  classes:
+    - N
+    - S
+    - V
+    - F
+
+excluded_classes:
+  - Q
+
+q_exclusion_reason:
+  core_44_q_beats: 15
+  reason: insufficient_samples_for_reliable_classification
+
+aami_mapping:
+  N:
+    - N
+    - L
+    - R
+    - e
+    - j
+
+  S:
+    - A
+    - a
+    - J
+    - S
+
+  V:
+    - V
+    - E
+
+  F:
+    - F
+
+  Q:
+    - "/"
+    - f
+    - Q
