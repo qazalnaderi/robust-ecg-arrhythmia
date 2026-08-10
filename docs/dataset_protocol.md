@@ -71,6 +71,24 @@ development, hyperparameter selection, or repeated evaluation.
 
 The exact train/validation/test record lists will be finalized separately.
 
+
+### Patient-independent DS1/DS2 split
+
+The core dataset contains 44 non-paced MIT-BIH records.
+
+A commonly used DS1/DS2 protocol assigns 22 records to each split.
+However, records 201 and 202 originate from the same subject.
+
+To enforce strict patient independence between development and final
+evaluation, both records are assigned to DS1 in this project.
+
+Therefore:
+
+- DS1: 23 records, used for training and validation
+- DS2: 21 records, reserved for final testing
+
+DS2 must not be used for model selection or hyperparameter tuning.
+
 ## Primary Metric
 
 Macro-F1 is the primary classification metric because the audited class

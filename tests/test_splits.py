@@ -6,10 +6,9 @@ from src.data.splits import (
 )
 
 
-def test_ds1_and_ds2_have_22_records_each():
-    assert len(DS1_RECORDS) == 22
-    assert len(DS2_RECORDS) == 22
-
+def test_expected_split_sizes():
+    assert len(DS1_RECORDS) == 23
+    assert len(DS2_RECORDS) == 21
 
 def test_ds1_and_ds2_do_not_overlap():
     assert set(DS1_RECORDS).isdisjoint(DS2_RECORDS)
@@ -33,3 +32,7 @@ def test_record_split_lookup():
     assert get_dataset_split("101") == "DS1"
     assert get_dataset_split("100") == "DS2"
     assert get_dataset_split("102") == "excluded"
+
+def test_same_subject_records_stay_in_same_split():
+    assert get_dataset_split("201") == "DS1"
+    assert get_dataset_split("202") == "DS1"
