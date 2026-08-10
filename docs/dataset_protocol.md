@@ -89,6 +89,35 @@ Therefore:
 
 DS2 must not be used for model selection or hyperparameter tuning.
 
+
+### Train/Validation Split
+
+The DS1 development set is further divided at the record level into
+training and validation subsets.
+
+Validation records:
+
+- 108
+- 114
+- 205
+- 207
+- 223
+
+The remaining 18 DS1 records are used for training.
+
+The split is performed at the record level rather than the heartbeat level
+to avoid subject leakage between training and validation.
+
+The validation subset was selected using the record-level dataset audit to
+retain representation of the N, S, V, and F classes while preserving enough
+rare F-class beats for training.
+
+Records 201 and 202 originate from the same subject and are both retained in
+the training subset.
+
+DS2 remains reserved for final evaluation and must not be used for model
+selection or hyperparameter tuning.
+
 ## Primary Metric
 
 Macro-F1 is the primary classification metric because the audited class

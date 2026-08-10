@@ -1,0 +1,5 @@
+split,number_of_records,N,S,V,F,Q,mapped_beats
+train,18,38208,800,2993,385,8,42394
+validation,5,9719,199,814,31,0,10763
+ds1_development_total,23,47927,999,3807,416,8,53157
+ds2_final_test,21,42198,1782,3202,387,7,47576
