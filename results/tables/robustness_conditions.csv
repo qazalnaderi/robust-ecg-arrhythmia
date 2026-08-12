@@ -1,0 +1,17 @@
+condition,noise_type,snr_db
+clean,clean,
+bw_18db,bw,18.0
+bw_12db,bw,12.0
+bw_6db,bw,6.0
+bw_0db,bw,0.0
+bw_-6db,bw,-6.0
+ma_18db,ma,18.0
+ma_12db,ma,12.0
+ma_6db,ma,6.0
+ma_0db,ma,0.0
+ma_-6db,ma,-6.0
+em_18db,em,18.0
+em_12db,em,12.0
+em_6db,em,6.0
+em_0db,em,0.0
+em_-6db,em,-6.0
