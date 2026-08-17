@@ -32,13 +32,21 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument(
         "--loss-weighting",
-        choices=("weighted", "unweighted"),
+        choices=(
+            "weighted",
+            "sqrt_weighted",
+            "unweighted",
+        ),
         required=True,
         help="Choose which clean-baseline checkpoint to evaluate.",
     )
     parser.add_argument(
         "--split",
-        choices=("train", "validation"),
+        choices=(
+            "weighted",
+            "sqrt_weighted",
+            "unweighted",
+        ),
         default="validation",
         help="Choose which development split to evaluate.",
     )

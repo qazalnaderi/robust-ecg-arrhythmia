@@ -42,3 +42,22 @@ def compute_class_weights(
     )
 
     return weights
+
+
+def compute_sqrt_class_weights(
+    targets: torch.Tensor,
+    num_classes: int,
+) -> torch.Tensor:
+    """
+    Compute square-root inverse-frequency class weights.
+
+    This provides milder class reweighting than full
+    inverse-frequency weighting.
+    """
+
+    inverse_weights = compute_class_weights(
+        targets=targets,
+        num_classes=num_classes,
+    )
+
+    return torch.sqrt(inverse_weights)

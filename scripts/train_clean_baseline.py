@@ -25,8 +25,10 @@ from src.training.reproducibility import (
     DEFAULT_SEED,
     set_global_seed,
 )
-from src.training.weights import compute_class_weights
-
+from src.training.weights import (
+    compute_class_weights,
+    compute_sqrt_class_weights,
+)
 
 DATA_DIR = Path("data/raw/mitdb")
 RESULTS_ROOT = Path("results/clean_baseline")
@@ -45,7 +47,11 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument(
         "--loss-weighting",
-        choices=("weighted", "unweighted"),
+        choices=(
+            "weighted",
+            "sqrt_weighted",
+            "unweighted",
+        ),
         default="weighted",
         help="Choose weighted or unweighted cross-entropy loss.",
     )
@@ -169,6 +175,20 @@ def main() -> None:
             targets=train_dataset.targets,
             num_classes=len(CLASS_NAMES),
         ).to(device)
+
+    elif loss_weighting == "sqrt_weighted":
+
+        class_weights = compute_sqrt_class_weights(
+            targets=train_dataset.targets,
+            num_classes=len(CLASS_NAMES),
+        ).to(device)
+
+    else:
+
+        class_weights = None
+
+
+    if class_weights is not None:
 
         criterion = nn.CrossEntropyLoss(
             weight=class_weights
