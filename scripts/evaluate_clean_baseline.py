@@ -6,7 +6,10 @@ from pathlib import Path
 import torch
 from torch.utils.data import DataLoader
 
-from src.data.splits import VALIDATION_RECORDS
+from src.data.splits import (
+    TRAIN_RECORDS,
+    VALIDATION_RECORDS,
+)
 from src.data.torch_dataset import (
     CLASS_NAMES,
     build_dataset_from_records,
@@ -33,12 +36,21 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="Choose which clean-baseline checkpoint to evaluate.",
     )
-
+    parser.add_argument(
+        "--split",
+        choices=("train", "validation"),
+        default="validation",
+        help="Choose which development split to evaluate.",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    if args.split == "train":
+        record_ids = TRAIN_RECORDS
+    else:
+        record_ids = VALIDATION_RECORDS
 
     checkpoint_path = (
         RESULTS_ROOT
@@ -53,10 +65,12 @@ def main() -> None:
     )
 
     print("=" * 72)
-    print("CLEAN BASELINE VALIDATION EVALUATION")
+    print(
+    f"CLEAN BASELINE {args.split.upper()} EVALUATION")
     print("=" * 72)
 
     print(f"Loss weighting: {args.loss_weighting}")
+    print(f"Evaluation split: {args.split}")
     print(f"Device: {device}")
     print(f"Checkpoint: {checkpoint_path}")
 
@@ -64,13 +78,13 @@ def main() -> None:
     # 1. Load validation data
     # ---------------------------------------------------------
 
-    validation_dataset = build_dataset_from_records(
-        record_ids=VALIDATION_RECORDS,
+    evaluation_dataset = build_dataset_from_records(
+        record_ids=record_ids,
         data_dir=DATA_DIR,
     )
 
-    validation_loader = DataLoader(
-        validation_dataset,
+    evaluation_loader = DataLoader(
+        evaluation_dataset,
         batch_size=BATCH_SIZE,
         shuffle=False,
         num_workers=0,
@@ -100,7 +114,7 @@ def main() -> None:
 
     metrics = evaluate_model(
         model=model,
-        dataloader=validation_loader,
+        dataloader=evaluation_loader,
         device=device,
     )
 
@@ -116,12 +130,12 @@ def main() -> None:
     )
 
     print(
-        f"Stored Macro-F1: "
+        f"Checkpoint Validation Macro-F1: "
         f"{checkpoint['validation_macro_f1']:.6f}"
     )
 
     print(
-        f"Recomputed Macro-F1: "
+        f"{args.split.capitalize()} Macro-F1: "
         f"{metrics['macro_f1']:.6f}"
     )
 
@@ -132,7 +146,7 @@ def main() -> None:
 
     print("-" * 72)
 
-    print("Per-class validation performance:")
+    print(f"Per-class {args.split} performance:")
 
     for class_name in CLASS_NAMES:
         values = metrics["per_class"][class_name]
