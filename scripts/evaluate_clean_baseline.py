@@ -40,18 +40,18 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="Choose which clean-baseline checkpoint to evaluate.",
     )
+
     parser.add_argument(
         "--split",
         choices=(
-            "weighted",
-            "sqrt_weighted",
-            "unweighted",
+            "train",
+            "validation",
         ),
         default="validation",
         help="Choose which development split to evaluate.",
     )
-    return parser.parse_args()
 
+    return parser.parse_args()
 
 def main() -> None:
     args = parse_args()
