@@ -256,10 +256,12 @@ def build_dataset_with_rr_from_records(
     """
     Build a normalized ECG heartbeat dataset with aligned RR features.
 
-    RR intervals are first calculated from the complete sequence of
-    heartbeat annotations in each record. The resulting RR vectors are
-    then matched to the segmented N/S/V/F beats using their annotation
-    sample locations.
+    RR intervals are calculated from the complete heartbeat sequence
+    of each record. Intervals crossing ventricular flutter episodes
+    are marked invalid and excluded from RR statistics.
+
+    The resulting RR vectors are then aligned with the segmented
+    N/S/V/F heartbeats using annotation sample locations.
     """
 
     data_dir = Path(data_dir)
@@ -267,6 +269,12 @@ def build_dataset_with_rr_from_records(
     all_heartbeats = []
     all_rr_features = []
     all_labels = []
+
+    ventricular_flutter_symbols = {
+        "[",
+        "!",
+        "]",
+    }
 
     for record_id in record_ids:
 
@@ -288,7 +296,7 @@ def build_dataset_with_rr_from_records(
         )
 
         # -----------------------------------------------------
-        # 2. Read the complete heartbeat annotation sequence
+        # 2. Read complete annotation sequence
         # -----------------------------------------------------
 
         header = wfdb.rdheader(
@@ -301,14 +309,26 @@ def build_dataset_with_rr_from_records(
         )
 
         rr_beat_samples = []
+        rr_annotation_indices = []
 
-        for sample, symbol in zip(
-            annotation.sample,
-            annotation.symbol,
+        for annotation_index, (
+            sample,
+            symbol,
+        ) in enumerate(
+            zip(
+                annotation.sample,
+                annotation.symbol,
+            )
         ):
+
             if map_to_aami(symbol) is not None:
+
                 rr_beat_samples.append(
                     int(sample)
+                )
+
+                rr_annotation_indices.append(
+                    annotation_index
                 )
 
         rr_beat_samples = np.asarray(
@@ -316,13 +336,61 @@ def build_dataset_with_rr_from_records(
             dtype=np.int64,
         )
 
+        if len(rr_beat_samples) < 2:
+            raise RuntimeError(
+                f"Record {record_id} does not contain "
+                "enough heartbeat annotations for RR features."
+            )
+
         # -----------------------------------------------------
-        # 3. Compute RR features from the full beat sequence
+        # 3. Identify invalid RR intervals
+        # -----------------------------------------------------
+
+        valid_rr_mask = np.ones(
+            len(rr_beat_samples) - 1,
+            dtype=bool,
+        )
+
+        for rr_index in range(
+            len(rr_annotation_indices) - 1
+        ):
+
+            previous_annotation_index = (
+                rr_annotation_indices[
+                    rr_index
+                ]
+            )
+
+            next_annotation_index = (
+                rr_annotation_indices[
+                    rr_index + 1
+                ]
+            )
+
+            symbols_between = annotation.symbol[
+                previous_annotation_index + 1:
+                next_annotation_index
+            ]
+
+            crosses_ventricular_flutter = any(
+                symbol in ventricular_flutter_symbols
+                for symbol in symbols_between
+            )
+
+            if crosses_ventricular_flutter:
+
+                valid_rr_mask[
+                    rr_index
+                ] = False
+
+        # -----------------------------------------------------
+        # 4. Compute RR features using only valid intervals
         # -----------------------------------------------------
 
         rr_features = compute_rr_features(
             beat_samples=rr_beat_samples,
             sampling_rate=header.fs,
+            valid_rr_mask=valid_rr_mask,
         )
 
         rr_by_sample = {
@@ -334,7 +402,7 @@ def build_dataset_with_rr_from_records(
         }
 
         # -----------------------------------------------------
-        # 4. Align RR vectors with segmented core beats
+        # 5. Align RR vectors with segmented core beats
         # -----------------------------------------------------
 
         aligned_rr_features = []
@@ -346,6 +414,7 @@ def build_dataset_with_rr_from_records(
             )
 
             if annotation_sample not in rr_by_sample:
+
                 raise RuntimeError(
                     "Could not align RR features for "
                     f"record {record_id}, "
@@ -353,7 +422,9 @@ def build_dataset_with_rr_from_records(
                 )
 
             aligned_rr_features.append(
-                rr_by_sample[annotation_sample]
+                rr_by_sample[
+                    annotation_sample
+                ]
             )
 
         aligned_rr_features = np.asarray(
@@ -362,7 +433,7 @@ def build_dataset_with_rr_from_records(
         )
 
         # -----------------------------------------------------
-        # 5. Final record-level consistency checks
+        # 6. Record-level consistency check
         # -----------------------------------------------------
 
         if not (
@@ -370,6 +441,7 @@ def build_dataset_with_rr_from_records(
             == len(labels)
             == len(aligned_rr_features)
         ):
+
             raise RuntimeError(
                 "ECG/RR/label length mismatch in "
                 f"record {record_id}."
@@ -387,9 +459,14 @@ def build_dataset_with_rr_from_records(
             labels
         )
 
+    # ---------------------------------------------------------
+    # 7. Combine all requested records
+    # ---------------------------------------------------------
+
     if not all_heartbeats:
         raise ValueError(
-            "No heartbeats were extracted from the requested records."
+            "No heartbeats were extracted from "
+            "the requested records."
         )
 
     heartbeats = np.concatenate(
