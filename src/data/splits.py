@@ -28,7 +28,6 @@ DS1_RECORDS = (
 )
 
 DS2_RECORDS = (
-    "100",
     "103",
     "105",
     "111",
@@ -49,6 +48,9 @@ DS2_RECORDS = (
     "232",
     "233",
     "234",
+)
+SANITY_RECORDS = (
+    "100",
 )
 
 PACED_EXCLUDED_RECORDS = (
@@ -88,7 +90,8 @@ def get_dataset_split(record_id: str) -> str:
     -------
     str
         "DS1" for development records,
-        "DS2" for final-test records,
+        "DS2" for untouched final-test records,
+        "sanity" for development-only sanity-check records,
         or "excluded" for paced-heavy records.
 
     Raises
@@ -105,6 +108,9 @@ def get_dataset_split(record_id: str) -> str:
 
     if record_id in PACED_EXCLUDED_RECORDS:
         return "excluded"
+
+    if record_id in SANITY_RECORDS:
+        return "sanity"
 
     raise ValueError(
         f"Unknown MIT-BIH record: {record_id}"
