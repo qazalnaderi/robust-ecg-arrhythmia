@@ -84,6 +84,11 @@ def wavelet_denoise(
             "Signal must not be empty."
         )
 
+    if not np.isfinite(signal).all():
+        raise ValueError(
+            "ECG signal contains NaN or infinite values."
+        )
+
     if level <= 0:
         raise ValueError(
             "Wavelet decomposition level must be greater than zero."

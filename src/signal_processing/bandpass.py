@@ -53,6 +53,11 @@ def bandpass_filter(
             f"got shape {signal.shape}."
         )
 
+    if not np.isfinite(signal).all():
+        raise ValueError(
+            "ECG signal contains NaN or infinite values."
+        )
+
     if sampling_rate <= 0:
         raise ValueError(
             "Sampling rate must be greater than zero."
