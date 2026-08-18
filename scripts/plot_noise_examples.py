@@ -17,7 +17,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MITDB_DIR = PROJECT_ROOT / "data" / "raw" / "mitdb"
 FIGURE_DIR = PROJECT_ROOT / "results" / "figures"
 
-RECORD_ID = "101"
+RECORD_ID = "100"
 LEAD_NAME = "MLII"
 
 SNR_DB = 6.0
@@ -157,7 +157,7 @@ def main() -> None:
 
     output_path = (
         FIGURE_DIR
-        / "noise_examples_record_101.png"
+        / "noise_examples_record_100.png"
     )
 
     fig.savefig(
