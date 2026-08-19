@@ -1,0 +1,7 @@
+configuration,seed,best_epoch,validation_macro_f1,validation_balanced_accuracy,checkpoint
+clean_rr,42,7,0.40300086957287573,0.4375287152802742,results\reproducibility\clean_rr\seed_42\best_model.pt
+clean_rr,123,12,0.3864998711338956,0.36588417423028113,results\reproducibility\clean_rr\seed_123\best_model.pt
+clean_rr,2026,4,0.3646839979253232,0.46292071617024594,results\reproducibility\clean_rr\seed_2026\best_model.pt
+noise_augmented_rr,42,15,0.34555893486190015,0.4205354349278201,results\reproducibility\noise_augmented_rr\seed_42\best_model.pt
+noise_augmented_rr,123,15,0.35918878163694734,0.4381147646495577,results\reproducibility\noise_augmented_rr\seed_123\best_model.pt
+noise_augmented_rr,2026,4,0.3903245759312651,0.4021410967227577,results\reproducibility\noise_augmented_rr\seed_2026\best_model.pt
