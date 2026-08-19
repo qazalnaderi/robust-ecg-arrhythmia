@@ -1,0 +1,5 @@
+class_name,clean_trained_mean_f1,noise_augmented_mean_f1,difference
+N,0.907,0.964,0.057
+S,0.113,0.115,0.002
+V,0.693,0.854,0.161
+F,0.006,0.002,-0.004
